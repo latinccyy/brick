@@ -1,33 +1,84 @@
 
 
 class Game {
-    constructor() {
-        var canvas = document.querySelector('#id-canvas')
-        var context = canvas.getContext('2d')
-        log(canvas)
-        this.canvas = canvas
-        this.context = context
+    constructor(runCallback) {
+        this.canvas = document.querySelector('#id-canvas')
+        this.context = this.canvas.getContext('2d')
+        this.context.font = '20px serif';
+        this.context.fillStyle = "blue"
         this.actions = {}
         this.keydowns = {}
-        this.scene = []
-        var paddle = new Paddle()
-        var ball = new Ball()
-        this.paddle = paddle
-        this.ball = ball
-        this.scene.push(paddle)
-        this.scene.push(ball)
+        this.images = {}
+        this.scene = null
 
         this.addListener()
+        this.loadImages(runCallback)
 
 
     }
 
+    loadImages(runCallback) {
+        var images = this.getImagePath()
+        var names = Object.keys(images)
+        var load = 0
+        for (var i = 0; i < names.length; i++) {
+            let name = names[i]
+            var path = images[name]
+            let img = new Image()
+            img.src = path
+            img.onload = () => {
+                this.images[name] = img
+                load += 1
+                var loadAll = load == names.length
+                if (loadAll) {
+                    this.__start(runCallback)
+                }
+            }
+        }
+    }
+
+    getImagePath() {
+        var images = {
+            'ball': 'image/ball.png',
+            'brick': 'image/brick.png',
+            'paddle': 'image/paddle.png',
+            'background': 'image/background.jpg',
+        }
+        return images
+    }
+
+    __start(runCallback) {
+        runCallback()
+    }
+
+    imageByName(name) {
+        return this.images[name]
+    }
+
     run() {
-        setInterval(() => {
+        setTimeout(() => {
+            this.runLoop()
+            this.run()
+        }, this.getFps())
+    }
+
+    runLoop() {
+        if (!pause) {
             this.update()
-            this.clear()
-            this.draw()
-        }, 1000/window.fps)
+        }
+        this.clear()
+        this.draw()
+    }
+
+    getFps() {
+        var input = document.querySelector('#id-fps')
+        var fps = 1000/Number(input.value)
+        return fps
+    }
+
+    gameOver() {
+        var s = new EndScene(this)
+        this.changeScene(s)
     }
 
     addListener() {
@@ -39,24 +90,23 @@ class Game {
             this.keydowns[event.key] = false
         })
 
-        this.register('ArrowLeft', () => {
-            this.paddle.moveLeft()
-        })
-
-        this.register('ArrowRight', () => {
-            this.paddle.moveRight()
-        })
     }
 
-    register(key, callback) {
+    registerAction(key, callback) {
         this.actions[key] = callback
     }
 
+    deregisterAction(key, callback) {
+        delete this.actions[key]
+    }
+
+    changeScene(newScene) {
+        var clearOk = this.scene.clear()
+        this.scene = newScene
+    }
+
     update() {
-        this.ball.move()
-        if (collide(this.paddle, this.ball)) {
-            this.ball.rebound()
-        }
+        this.scene.update()
         for (var k in this.actions) {
             if (this.keydowns[k]) {
                 this.actions[k]()
@@ -69,12 +119,16 @@ class Game {
     }
 
     draw () {
-        for (var s of this.scene) {
-            this.drawImage(s)
-        }
+        var bg = new BackGround(this)
+        this.drawImage(bg)
+        this.scene.draw()
     }
 
     drawImage(image) {
         this.context.drawImage(image.image, image.x, image.y, image.w, image.h);
+    }
+
+    drawText(text, x, y) {
+        this.context.fillText(text, x, y)
     }
 }

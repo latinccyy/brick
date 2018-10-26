@@ -1,10 +1,15 @@
 
 
-window.fps = 30
 function __main() {
-    var g = new Game()
+    window.width = 400
+    window.height = 300
+    var g = new Game(function() {
+        var s = new StartScene(g)
+        g.scene = s
+        g.run()
+    })
 
-    g.run()
+    debugMode(g, true)
 }
 
 
