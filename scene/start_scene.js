@@ -5,11 +5,11 @@ class StartScene extends Scene{
 
     addListener() {
         this.game.registerAction('s', () => {
+            // 加载游戏核心场景
             var s = new MainScene(this.game)
             this.game.changeScene(s)
         })
     }
-
 
     draw() {
         var text = '按 s 开始游戏'
@@ -19,6 +19,4 @@ class StartScene extends Scene{
     clear() {
         this.game.deregisterAction('s')
     }
-
-
 }

@@ -12,17 +12,15 @@ class MainScene extends Scene{
     }
 
     draw() {
-        // for (var s of this.elements) {
-        //     this.game.drawImage(s)
-        // }
+        var text = '分数： ' + this.score
+        this.game.drawText(text, 300, 290)
+
         for (var b of this.bricks) {
             this.game.drawImage(b)
         }
         this.game.drawImage(this.ball)
         this.game.drawImage(this.paddle)
 
-        var text = '分数： ' + this.score
-        this.game.drawText(text, 300, 290)
     }
 
     update() {
@@ -30,8 +28,8 @@ class MainScene extends Scene{
         // 碰撞处理
         this.checkCollide()
         // 更新砖块
-        var bricks = this.updateBricks()
-        this.updateScore(bricks)
+        var deadBricks = this.updateBricks()
+        this.updateScore(deadBricks)
         this.updateLevel()
     }
 
@@ -76,13 +74,13 @@ class MainScene extends Scene{
     }
 
     checkCollide() {
-        var o = this.collideImage()
-        var isCollide = o != null
+        var img = this.collideImage()
+        var isCollide = img != null
         if (isCollide) {
-            o.handleCollide()
-            // 检测侧面碰撞或正面碰撞
-            var result = this.isProfileCollide(o)
-            this.ball.handleCollide(result)
+            // 检测侧面碰撞或正面碰撞，并作出处理
+            var collideKind = this.isProfileCollide(img)
+            this.ball.handleCollide(collideKind)
+            img.handleCollide()
         }
     }
 
@@ -100,7 +98,10 @@ class MainScene extends Scene{
         return null
     }
 
+    // 是否撞到木板的侧面（左右面）
     isProfileCollide(image) {
+        // 先假设碰撞到正面（上下面），如果调整方向后仍然会碰到木板
+        // 说明撞到的不是正面，而是侧面
         this.ball.reboundY()
         var p = this.ball.nextPosition()
         this.ball.reboundY()

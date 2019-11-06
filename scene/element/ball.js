@@ -1,3 +1,4 @@
+
 class Ball {
     constructor(game) {
         this.x = 300
@@ -18,16 +19,6 @@ class Ball {
         }
         this.x += this.speedX
         this.y += this.speedY
-    }
-
-    nextPosition() {
-        var p = {
-            x: this.x + this.speedX,
-            y: this.y + this.speedY,
-            w: this.w,
-            h: this.h,
-        }
-        return p
     }
 
     handleCollide(isProfileCollide) {
@@ -55,5 +46,13 @@ class Ball {
         return false
     }
 
-
+    nextPosition() {
+        var p = {
+            x: this.x + this.speedX,
+            y: this.y + this.speedY,
+            w: this.w,
+            h: this.h,
+        }
+        return p
+    }
 }
